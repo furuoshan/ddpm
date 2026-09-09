@@ -55,13 +55,20 @@ def sample_plot_image(model, device, img_size, T):
     plt.savefig("sample.png")
 
 
+def load_model_weights(path, device):
+    checkpoint = torch.load(path, map_location=device, weights_only=False)
+    if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
+        return checkpoint["model_state_dict"]
+    return checkpoint
+
+
 if __name__ == "__main__":
     img_size = 64
     T = 300
     model = SimpleUnet()
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")
-    model.load_state_dict(torch.load("trained_models/ddpm_mse_epochs_500.pth"))
+    model.load_state_dict(load_model_weights("trained_models/ddpm_latest.pth", device))
     model.to(device)
 
     sample_plot_image(model=model, device=device, img_size=img_size, T=T)
