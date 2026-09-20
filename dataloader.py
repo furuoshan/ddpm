@@ -16,9 +16,9 @@ def load_transformed_dataset(img_size=64, batch_size=128) -> DataLoader:
     ]
     data_transform = transforms.Compose(data_transforms)
 
-    train = torchvision.datasets.ImageFolder(root="./stanford_cars/car_data/car_data/train", transform=data_transform)
+    train = torchvision.datasets.ImageFolder(root="./cars_train", transform=data_transform)
 
-    test = torchvision.datasets.ImageFolder(root="./stanford_cars/car_data/car_data/test", transform=data_transform)
+    test = torchvision.datasets.ImageFolder(root="./cars_test", transform=data_transform)
 
     dataset = torch.utils.data.ConcatDataset([train, test])
 

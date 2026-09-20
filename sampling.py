@@ -37,7 +37,9 @@ def sample_timestep(model, x, t):
 
 @torch.no_grad()
 def sample_plot_image(model, device, img_size, T):
-    # Sample noise
+    # Keep train-mode BatchNorm (per-image stats). eval() + running stats
+    # made samples collapse to noise / checkerboard on this U-Net.
+    model.train()
     img = torch.randn((1, 3, img_size, img_size), device=device)
     plt.figure(figsize=(15, 15))
     plt.axis("off")
@@ -57,8 +59,13 @@ def sample_plot_image(model, device, img_size, T):
 
 def load_model_weights(path, device):
     checkpoint = torch.load(path, map_location=device, weights_only=False)
-    if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
-        return checkpoint["model_state_dict"]
+    if isinstance(checkpoint, dict):
+        if "ema_state_dict" in checkpoint:
+            print(f"Loaded EMA weights from {path}")
+            return checkpoint["ema_state_dict"]
+        if "model_state_dict" in checkpoint:
+            print(f"No EMA weights in {path}, using model_state_dict")
+            return checkpoint["model_state_dict"]
     return checkpoint
 
 
@@ -66,6 +73,7 @@ if __name__ == "__main__":
     img_size = 64
     T = 300
     model = SimpleUnet()
+    model.eval()
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")
     model.load_state_dict(load_model_weights("trained_models/ddpm_latest.pth", device))
