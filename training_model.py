@@ -130,7 +130,7 @@ if __name__ == "__main__":
 
     logging.info(f"Using device: {device}")
     model.to(device)
-    optimizer = Adam(model.parameters(), lr=0.001)
+    optimizer = Adam(model.parameters(), lr=0.0005)
     ema = EMA(model, decay=EMA_DECAY)
     logging.info(f"EMA decay: {EMA_DECAY}")
 
